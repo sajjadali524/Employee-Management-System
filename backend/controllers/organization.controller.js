@@ -5,12 +5,13 @@ class organizationController {
     // create organization
     async create_organization (req, res) {
         try {
-            const {orgName, code, orgEmail, phone, address, userName, userEmail, password, role, createdBy} = req.body;
-            if (!orgName || !code || !orgEmail || !phone || !address || !userName || !userEmail || !password || !role || !createdBy) {
+            const {orgName, code, orgEmail, phone, address, userName, userEmail, password, role} = req.body;
+            const user_id = req.user.id;
+            if (!orgName || !code || !orgEmail || !phone || !address || !userName || !userEmail || !password || !role) {
                 return res.status(400).json({message: "All fields are required"});
             };
 
-            const {organization, admin} = await organizationService.create_organization(req.body);
+            const {organization, admin} = await organizationService.create_organization(req.body, user_id);
             return res.status(201).json({message: "Organization created successfully", organization, admin});
         } catch (error) {
             return res.status(500).json({message: error.message})

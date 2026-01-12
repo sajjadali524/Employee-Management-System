@@ -11,9 +11,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      lowercase: true,
-      trim: true,
-      index: true
     },
 
     password: {
@@ -49,7 +46,7 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-userSchema.index({ email: 1 });
+userSchema.index({ userEmail: 1 });
 userSchema.index({ organization: 1, role: 1 });
 
 const User = mongoose.model("User", userSchema);

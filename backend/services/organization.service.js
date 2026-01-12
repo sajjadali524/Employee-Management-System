@@ -6,7 +6,7 @@ import bcrypt from "bcryptjs";
 class organizationService {
 
     // create organization
-    async create_organization (body) {
+    async create_organization (body, user_id) {
         try {
             const organization = await Organization.findOne({ code: body.code });
             if(organization) {
@@ -24,7 +24,7 @@ class organizationService {
                 orgEmail: body.orgEmail,
                 phone: body.phone,
                 address: body.address,
-                createdBy: body.createdBy
+                createdBy: user_id
             });
 
             const hashedPassword = await bcrypt.hash(body.password, 10);
@@ -141,11 +141,16 @@ class organizationService {
                 query = { _id: org_id }
             }else {
                 query = { code: org_id }
-            }
-            const organization = await Organization.findOneAndDelete(query);
-            if(!organization) {
-                throw new Error("Organization not found!")
             };
+
+
+            const organization = await Organization.findOne(query);
+            if(!organization) {
+                throw new Error("No organization found!")
+            };
+
+            await User.deleteMany({organization: organization._id});
+            await Organization.findOneAndDelete(organization._id);
 
             return organization;
         } catch (error) {

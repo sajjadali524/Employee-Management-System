@@ -1,9 +1,13 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
+import Organization from "../models/organization.model.js";
 
 class userService {
 
+    // =============================
+    // PUBLIC API's START
+    // =============================
     // login user
     async login_user (body) {
         try {
@@ -17,7 +21,7 @@ class userService {
                 throw new Error("Invalid email address!")
             };
 
-            const user = await User.findOne({ userEmail: body.email}).select("+password");
+            const user = await User.findOne({ userEmail: body.email} || {email: body.email}).select("+password");
             if(!user) {
                 throw new Error("User did not exist!")
             };
@@ -66,6 +70,47 @@ class userService {
             user.password = hashPassword;
             await user.save();
             return user;
+        } catch (error) {
+            throw new Error(error.message)
+        }
+    };
+
+    // get logged in user profile
+    async get_profile (user_id) {
+        try {
+            const user = await User.findById(user_id);
+            if(!user) {
+                throw new Error("User not found!")
+            };
+
+            return user;
+        } catch (error) {
+            throw new Error(error.message)
+        }
+    };
+
+    // ==========================
+    // PUBLIC API's END
+    // ==========================
+
+    // --------------------------------------------
+
+    // =============================
+    // SUPER ADMIN API's START
+    // =============================
+    
+    // get all organizations with user
+    async get_all_org_with_users () {
+        try {
+            const organization = await Organization.find().populate({
+                path: "users",
+                select: "userName userEmail role isActive"
+            });
+            if(!organization || organization.length === 0) {
+                throw new Error("No organization exist!")
+            };
+
+            return organization;
         } catch (error) {
             throw new Error(error.message)
         }

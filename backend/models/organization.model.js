@@ -32,6 +32,7 @@ const organizationSchema = new mongoose.Schema(
       type: String
     },
 
+    
     isActiveOrg: {
       type: Boolean,
       default: true,
@@ -53,6 +54,14 @@ const organizationSchema = new mongoose.Schema(
     timestamps: true
   }
 );
+
+organizationSchema.virtual("users", {
+  ref: "User",
+  localField: "_id",
+  foreignField: "organization"
+});
+organizationSchema.set("toJSON", { virtuals: true });
+organizationSchema.set("toObject", { virtuals: true });
 
 // Compound indexes for performance
 organizationSchema.index({ name: 1, isActive: 1 });
