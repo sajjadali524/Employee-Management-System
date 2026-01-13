@@ -115,6 +115,116 @@ class userService {
             throw new Error(error.message)
         }
     };
+
+    // get specific user
+    async get_specific_user (user_id) {
+        try {
+            const user = await User.findById(user_id);
+            if(!user) {
+                throw new Error("User not exist!")
+            };
+
+            return user;
+        } catch (error) {
+            throw new Error(error.message)
+        }
+    };
+
+    // activate deactivate user
+    async activate_deactivate_user (user_id, status) {
+        try {
+            const user = await User.findByIdAndUpdate(user_id, {isActive: status}, {new: true});
+            if(!user) {
+                throw new Error("User not found!")
+            };
+            return user;
+        } catch (error) {
+            throw new Error(error.message)
+        }
+    };
+
+    // delete user
+    async delete_user (user_id) {
+        try {
+            const user = await User.findByIdAndDelete(user_id);
+            if(!user) {
+                throw new Error("user not exist!")
+            };
+            return user;
+        } catch (error) {
+            throw new Error(error.message)
+        }
+    };
+
+    // =============================
+    // SUPER ADMIN API's END
+    // =============================
+    // -----------------------------------------------
+    // =============================
+    // SUPER ADMIN API's START
+    // =============================
+    // create HR/Employee
+    async create_hr_employee (body, user_id) {
+        try {
+            const logged_in_user = await User.findById(user_id).populate("organization");
+
+            let emailQuery = {userEmail: body.userEmail};
+            if(logged_in_user.role === "ORG_ADMIN") {
+                emailQuery.organization = logged_in_user.organization._id
+            }
+            const existing_user = await User.findOne(emailQuery);
+            if(existing_user) {
+                throw new Error("User already exist with this email!")
+            };
+
+            const hashPassword = await bcrypt.hash(body.password, 10);
+
+            const user = await User.create({
+                userName: body.userName,
+                userEmail: body.userEmail,
+                password: hashPassword,
+                role: body.role,
+                organization: logged_in_user.organization._id
+            });
+
+            return user;
+        } catch (error) {
+            throw new Error(error.message)
+        }
+    };
+
+    // get org users list
+    async get_org_users (user_id) {
+        try {
+            const logged_in_user = await User.findById(user_id).populate("organization");
+            const user = await User.find({organization: logged_in_user.organization._id});
+            if(!user || user.length < 1) {
+                throw new Error("No users exist in this oragnization!")
+            };
+
+            return user;
+        } catch (error) {
+            throw new Error(error.message)
+        }
+    };
+
+    // get specific org user
+    async get_specific_org_user (user_id, id) {
+        try {
+            const logged_in_user = await User.findById(user_id).populate("organization");
+            let query = {_id: id};
+            if(logged_in_user.role === "ORG_ADMIN") {
+                query.organization = logged_in_user.organization._id
+            }
+            const user = await User.findOne(query);
+            if(!user) {
+                throw new Error("user not found!")
+            };
+            return user;
+        } catch (error) {
+            throw new Error(error.message)
+        }
+    };
 };
 
 export default new userService();

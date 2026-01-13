@@ -12,5 +12,13 @@ router.get("/me", isAuthenticated, userController.get_profile);
 
 // super admin
 router.get("/get-all-org-with-users", isAuthenticated, hasRole("SUPER_ADMIN"), userController.get_all_org_with_users);
+router.get("/user/:id", isAuthenticated, hasRole("SUPER_ADMIN"), userController.get_specific_user);
+router.patch("/status/:id", isAuthenticated, hasRole("SUPER_ADMIN"), userController.activate_deactivate_user);
+router.delete("/:id", isAuthenticated, hasRole("SUPER_ADMIN"), userController.delete_user);
+
+// organization admin
+router.post("/create-hr-employee", isAuthenticated, hasRole("ORG_ADMIN"), userController.create_hr_employee);
+router.get("/list-users", isAuthenticated, hasRole("ORG_ADMIN"), userController.get_org_users);
+router.get("/org-user/:id", isAuthenticated, hasRole("ORG_ADMIN"), userController.get_specific_org_user);
 
 export default router;
