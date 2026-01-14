@@ -39,6 +39,16 @@ const userSchema = new mongoose.Schema(
     isActive: {
       type: Boolean,
       default: true
+    },
+    designation: {
+      type: String,
+    },
+    userProfile: {
+      profilePhoto: String,
+      skills: [String],
+      location: String,
+      phoneNumber: String,
+      dob: Date
     }
   },
   {

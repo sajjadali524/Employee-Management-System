@@ -169,22 +169,27 @@ class userService {
             const logged_in_user = await User.findById(user_id).populate("organization");
 
             let emailQuery = {userEmail: body.userEmail};
-            if(logged_in_user.role === "ORG_ADMIN") {
+            if(logged_in_user.role === "ORG_ADMIN" || logged_in_user.role === "HR") {
                 emailQuery.organization = logged_in_user.organization._id
             }
             const existing_user = await User.findOne(emailQuery);
             if(existing_user) {
-                throw new Error("User already exist with this email!")
+                throw new Error("User already exist with this email!");
             };
 
             const hashPassword = await bcrypt.hash(body.password, 10);
+
+            if(logged_in_user.role === "HR" && body.role === "HR" || body.role === "ORG_ADMIN") {
+                throw new Error("Sorry you can not created this type of account!")
+            };
 
             const user = await User.create({
                 userName: body.userName,
                 userEmail: body.userEmail,
                 password: hashPassword,
                 role: body.role,
-                organization: logged_in_user.organization._id
+                organization: logged_in_user.organization._id,
+                designation: body.designation
             });
 
             return user;
@@ -213,13 +218,105 @@ class userService {
         try {
             const logged_in_user = await User.findById(user_id).populate("organization");
             let query = {_id: id};
-            if(logged_in_user.role === "ORG_ADMIN") {
+            if(logged_in_user.role === "ORG_ADMIN" || logged_in_user.role === "HR") {
                 query.organization = logged_in_user.organization._id
             }
             const user = await User.findOne(query);
             if(!user) {
                 throw new Error("user not found!")
             };
+            return user;
+        } catch (error) {
+            throw new Error(error.message)
+        }
+    };
+
+    // update organization user
+    async update_org_user (user_id, id, body) {
+        try {
+            const logged_in_user = await User.findById(user_id).populate("organization");
+
+            let query = {_id: id};
+            if(logged_in_user.role === "ORG_ADMIN") {
+                query.organization = logged_in_user.organization._id
+            };
+
+            
+            const user = await User.findOne(query);
+            if(!user) {
+                throw new Error("user not found!")
+            };
+            
+            if(logged_in_user.role === "HR" && body.role === "HR" || body.role === "ORG_ADMIN") {
+                throw new Error("Sorry you can not created this type of account!")
+            };
+
+            let hashPassword;
+            if(body.password) {
+                hashPassword = await bcrypt.hash(body.password, 10);
+            }
+
+            if(body.userName) user.userName = body.userName;
+            if(body.userEmail) user.userEmail = body.userEmail;
+            if(body.password) user.password = hashPassword;
+            if(body.role) user.role = body.role;
+            if(body.organization) user.organization = body.organization;
+            if(body.mustChangePassword) user.mustChangePassword = body.mustChangePassword;
+            if(body.designation) user.designation = body.designation;
+
+            await user.save();
+
+            return user;
+
+        } catch (error) {
+            throw new Error(error.message)
+        }
+    };
+
+    // update user active status
+    async update_active_status(user_id, id, status) {
+        try {
+            const logged_in_user = await User.findById(user_id).populate("organization");
+
+            let query = {_id: id};
+            if(logged_in_user.role === "ORG_ADMIN" || logged_in_user.role === "HR") {
+                query.organization = logged_in_user.organization._id
+            };
+
+            const user = await User.findOne(query);
+            if(!user) {
+                throw new Error("user not found!")
+            }
+
+            if(logged_in_user.role === "HR" && body.role === "HR" || body.role === "ORG_ADMIN") {
+                throw new Error("Sorry you can not created this type of account!")
+            };
+
+            user.isActive = status;
+            await user.save();
+            return user;
+        } catch (error) {
+            throw new Error(error.message)
+        }
+    };
+
+    // delete org user
+    async delete_org_user (user_id, id) {
+        try {
+            const logged_in_user = await User.findById(user_id).populate("organization");
+
+            let query = {_id: id};
+            if(logged_in_user.role === "ORG_ADMIN") {
+                query.organization = logged_in_user.organization._id
+            };
+
+            const user = await User.findOne(query);
+            if(!user) {
+                throw new Error("user not found!")
+            }
+
+            user.deleteOne();
+            await user.save();
             return user;
         } catch (error) {
             throw new Error(error.message)

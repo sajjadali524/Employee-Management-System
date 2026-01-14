@@ -17,8 +17,11 @@ router.patch("/status/:id", isAuthenticated, hasRole("SUPER_ADMIN"), userControl
 router.delete("/:id", isAuthenticated, hasRole("SUPER_ADMIN"), userController.delete_user);
 
 // organization admin
-router.post("/create-hr-employee", isAuthenticated, hasRole("ORG_ADMIN"), userController.create_hr_employee);
-router.get("/list-users", isAuthenticated, hasRole("ORG_ADMIN"), userController.get_org_users);
-router.get("/org-user/:id", isAuthenticated, hasRole("ORG_ADMIN"), userController.get_specific_org_user);
+router.post("/create-hr-employee", isAuthenticated, hasRole("ORG_ADMIN", "HR"), userController.create_hr_employee);
+router.get("/list-users", isAuthenticated, hasRole("ORG_ADMIN", "HR"), userController.get_org_users);
+router.get("/org-user/:id", isAuthenticated, hasRole("ORG_ADMIN", "HR"), userController.get_specific_org_user);
+router.put("/update-user/:id", isAuthenticated, hasRole("ORG_ADMIN", "HR"), userController.update_org_user);
+router.patch("/update-user-status/:id", isAuthenticated, hasRole("ORG_ADMIN", "HR"), userController.update_active_status);
+router.delete("/delete/:id", isAuthenticated, hasRole("ORG_ADMIN"), userController.delete_org_user);
 
 export default router;

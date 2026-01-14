@@ -115,7 +115,7 @@ class userController {
     async create_hr_employee (req, res) {
         try {
             const user_id = req.user.id;
-            const { userName, userEmail, password, role } = req.body;
+            const { userName, userEmail, password, role, designation } = req.body;
             const user = await userService.create_hr_employee(req.body, user_id);
             return res.status(201).json({message: `${role} is created successfully!`, user})
         } catch (error) {
@@ -141,6 +141,44 @@ class userController {
             const id = req.params.id;
             const user = await userService.get_specific_org_user(user_id, id);
             return res.status(200).json({message: "user are fetched!", user})
+        } catch (error) {
+            return res.status(500).json({message: error.message})
+        }
+    };
+
+    // update organization user
+    async update_org_user (req, res) {
+        try {
+            const user_id = req.user.id;
+            const id = req.params.id;
+            const { userName, userEmail, password, role, organization, mustChangePassword, designation } = req.body;
+            const user = await userService.update_org_user(user_id, id, req.body);
+            return res.status(200).json({ message: "user is updated!"}, user)
+        } catch (error) {
+            return res.status(500).json({message: error.message})
+        }
+    };
+
+    // update isActive
+    async update_active_status (req, res) {
+        try {
+            const user_id = req.user.id;
+            const id = req.params.id;
+            const { status } = req.body;
+            const user = await userService.update_active_status(user_id, id, status);
+            return res.status(200).json({message: "user status is updated!", user})
+        } catch (error) {
+            return res.status(500).json({message: error.message})
+        }
+    };
+
+    // delete org user
+    async delete_org_user (req, res) {
+        try {
+            const user_id = req.user.id;
+            const id = req.params.id;
+            const user = await userService.delete_org_user(user_id, id);
+            return res.status(200).json({message: "user is deleted!", user})
         } catch (error) {
             return res.status(500).json({message: error.message})
         }
