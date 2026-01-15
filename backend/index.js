@@ -3,8 +3,9 @@ import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/db.mongo.js";
 import cookieParser from "cookie-parser";
-import organization_routes from "./routers/organization.route.js";
-import user_routes from "./routers/user.route.js";
+import organization_routes from "./routes/organization.route.js";
+import user_routes from "./routes/user.route.js";
+import attendance_routes from "./routes/attendance.route.js";
 dotenv.config();
 
 const app = express();
